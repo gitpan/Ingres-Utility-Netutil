@@ -1,4 +1,4 @@
-Ingres-Utility-Netutil version 0.01
+Ingres-Utility-Netutil version 0.02
 
 This module provides an API to netutil utility for Ingres RDBMS,
 which provides local control of IIGCC servers for Ingres Net

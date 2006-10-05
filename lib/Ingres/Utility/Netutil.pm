@@ -13,11 +13,11 @@ Ingres::Utility::Netutil - API to Netutil Ingres RDBMS utility
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -114,7 +114,7 @@ sub new {
 	$this->{cmd} = $Netutil_file;
 	$this->{xpct} = new Expect::Simple {
 				Cmd => $Netutil_file,
-#				Prompt => [ -re => 'Netutil>\s+' ],
+				Prompt => [ -re => '^$' ],
 #				DisconnectCmd => 'QUIT',
 				Verbose => 0,
 				Debug => 0,
@@ -279,6 +279,7 @@ sub createLogin {
 	    $type != 'PRIVATE') {
 			die $this . "::createLogin(): invalid type: $type";
 	}
+	my $vnode = uc (@_ ? shift : '');
 	if (! $vnode) {
 		die $this . "::createLogin(): missing VNode name";
 	}
@@ -312,8 +313,12 @@ Takes the following parameters:
 
 sub createConn {
 	my $this = shift;
-	my $type, $vnode, $addr, $proto, $listen;
-	($type, $vnode, $addr, $proto, $liste) = @_;
+	my $type;
+	my $vnode;
+	my $addr;
+	my $proto;
+	my $listen;
+	($type, $vnode, $addr, $proto, $listen) = @_;
 	$type = uc ($type);
 	if ($type != 'GLOBAL'  &&
 	    $type != 'PRIVATE') {
@@ -392,8 +397,12 @@ Takes the following parameters:
 
 sub destroyConn {
 	my $this = shift;
-	my $type, $vnode, $addr, $proto, $listen;
-	($type, $vnode, $addr, $proto, $liste) = @_;
+	my $type;
+	my $vnode;
+	my $addr;
+	my $proto;
+	my $listen;
+	($type, $vnode, $addr, $proto, $listen) = @_;
 	$type = uc ($type);
 	if ($type != 'GLOBAL'  &&
 	    $type != 'PRIVATE') {
@@ -401,7 +410,7 @@ sub destroyConn {
 	}
 	if ($vnode == ''  ||
 	    $vnode == '*') {
-		die $this . "::destroyConn(): invalid VNode name: $tvnode";
+		die $this . "::destroyConn(): invalid VNode name: $vnode";
 	}
 	my $param;
 	foreach $param ('addr', 'proto', 'listen') {
@@ -426,7 +435,7 @@ sub destroyConn {
 
 =for internal subroutine
 
-sub quiesceStopServer {
+sub _quiesceStopServer {
 	my $this = shift;
 	my $cmd  = shift;
 	my $obj  = $this->{xpct};
@@ -450,7 +459,7 @@ Takes optional parameter serverId, to specify which server, or '*' for all serve
 sub quiesceServer {
 	my $this = shift;
 	my $serverId = @_ ? shift : '*';
-	return quiesceStopServer('QUIESCE',$serverId);
+	return _quiesceStopServer('QUIESCE',$serverId);
 }
 
 
@@ -465,7 +474,7 @@ Takes optional parameter serverId, to specify which server, or '*' for all serve
 sub stopServer {
 	my $this = shift;
 	my $serverId = @_ ? shift : '*';
-	return quiesceStopServer('STOP',$serverId);
+	return _quiesceStopServer('STOP',$serverId);
 }
 
 
